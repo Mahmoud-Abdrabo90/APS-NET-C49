@@ -46,4 +46,37 @@ namespace Assignment 02 oop
 
     #endregion
 
-}
+    #region Part 01 : Theoretical Questions - Question 2
+
+    // ---------------------------------------------------------------------
+    // Question 2
+
+    // a) Which class is the parent class?
+
+    // The parent (base) class is  Shipment.
+
+    // b) Which class is the child class?
+
+    // The child (derived) class is  ExpressShipment
+
+    // c) What members are inherited by ExpressShipment?
+
+    //   ExpressShipment inherits the accessible members of Shipment, which here is
+    //    the public property  TrackingCode.
+    //     So an ExpressShipment object has TrackingCode (inherited) and its own
+    //      ExtraFee.
+    //     It also inherits the members of System.Object through Shipment
+    //      (ToString, Equals, GetHashCode, GetType).
+    //     Constructors are NOT inherited, and private members are not accessible from the child class.
+
+
+    // d) Why is inheritance better than duplicating the same code in multiple classes?
+
+    //Inheritance is better than duplicating code because:
+    //      Code reuse: common members are written once in the parent class.
+    //      child classes automatically, instead of editing many copies
+    //      Polymorphism: a Shipment variable can hold any child object and call
+    //      overridden members (like EstimatedCost) - one code path for all types
+
+#endregion
+
