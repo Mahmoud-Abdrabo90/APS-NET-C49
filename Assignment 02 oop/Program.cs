@@ -1,6 +1,6 @@
 ﻿using System;
 
-namespace Assignment 02 oop
+namespace Assignment_02_oop
 {
     // =====================================================================
     //  C# OOP Assignment
@@ -78,5 +78,259 @@ namespace Assignment 02 oop
     //      Polymorphism: a Shipment variable can hold any child object and call
     //      overridden members (like EstimatedCost) - one code path for all types
 
-#endregion
+    #endregion
 
+    #region Part 02 : Practical - 1. Shipment Class
+
+    public struct DeliveryAddress
+    {
+        public string City;
+        public string Street;
+        public int BuildingNumber;
+
+        public DeliveryAddress(string city, string street, int buildingNumber)
+        {
+            City = city;
+            Street = street;
+            BuildingNumber = buildingNumber;
+        }
+
+
+        public string GetFullAddress()
+        {
+            return BuildingNumber + " " + Street + ", " + City;
+        }
+    }
+    public class Shipment
+    {
+        private string _trackingCode = "Unknown";
+        private string _description = "Unknown";
+        private decimal _weight = 1;
+        private decimal _deliveryFee = 50;
+
+        public string TrackingCode
+        {
+            get { return _trackingCode; }
+            private set
+            {
+                if (!string.IsNullOrWhiteSpace(value))
+                    _trackingCode = value;
+            }
+        }
+
+        public string Description
+        {
+            get { return _description; }
+            set
+            {
+                if (!string.IsNullOrWhiteSpace(value))
+                    _description = value;
+            }
+        }
+
+        public decimal Weight
+        {
+            get { return _weight; }
+            set
+            {
+                if (value > 0)
+                    _weight = value;
+            }
+        }
+
+        public decimal DeliveryFee
+        {
+            get { return _deliveryFee; }
+            private set
+            {
+                if (value > 0)
+                    _deliveryFee = value;
+            }
+        }
+
+        public DeliveryAddress Destination { get; set; }
+
+        public virtual decimal EstimatedCost
+        {
+            get { return DeliveryFee + Weight * 5; }
+        }
+
+        public Shipment(string trackingCode, string description, decimal weight,
+                        decimal deliveryFee, DeliveryAddress destination)
+        {
+            TrackingCode = trackingCode;
+            Description = description;
+            Weight = weight;
+            DeliveryFee = deliveryFee;
+            Destination = destination;
+        }
+
+        public virtual void PrintShipment()
+        {
+            Console.WriteLine("Shipment");
+            Console.WriteLine("Tracking Code : " + TrackingCode);
+            Console.WriteLine("Description   : " + Description);
+            Console.WriteLine("Weight        : " + Weight + " KG");
+            Console.WriteLine("Delivery Fee  : " + DeliveryFee + " EGP");
+            Console.WriteLine("Estimated Cost: " + EstimatedCost + " EGP");
+        }
+    }
+        //public class StandardShipment : Shipment
+        //{
+        //    public StandardShipment(string code, string description, decimal weight,
+        //                            decimal fee, DeliveryAddress address)
+        //        : base(code, description, weight, fee, address)
+        //    {
+        //    }
+        //}
+
+    #endregion
+
+    #region StandardShipment
+
+    public class StandardShipment : Shipment
+    {
+        // ": base(...)" is constructor chaining: the Shipment constructor does the work.
+        public StandardShipment(string trackingCode, string description, decimal weight,
+                                decimal deliveryFee, DeliveryAddress destination)
+            : base(trackingCode, description, weight, deliveryFee, destination)
+        {
+        }
+
+        public override void PrintShipment()
+        {
+            Console.WriteLine("Standard Shipment");
+            Console.WriteLine();
+            Console.WriteLine("Tracking Code : " + TrackingCode);
+            Console.WriteLine("Description   : " + Description);
+            Console.WriteLine("Weight        : " + Weight + " KG");
+            Console.WriteLine("Delivery Fee  : " + DeliveryFee + " EGP");
+            Console.WriteLine("Estimated Cost: " + EstimatedCost + " EGP");
+        }
+    }
+
+    #endregion
+
+    #region ExpressShipment
+
+    public class ExpressShipment : Shipment
+    {
+        private decimal _extraFee = 0;
+
+        public decimal ExtraFee
+        {
+            get { return _extraFee; }
+            set
+            {
+                if (value >= 0)
+                    _extraFee = value;
+            }
+        }
+
+        // DeliveryFee + (Weight x 5) + ExtraFee
+        public override decimal EstimatedCost
+        {
+            get { return DeliveryFee + Weight * 5 + ExtraFee; }
+        }
+
+        public ExpressShipment(string trackingCode, string description, decimal weight,
+                               decimal deliveryFee, DeliveryAddress destination, decimal extraFee)
+            : base(trackingCode, description, weight, deliveryFee, destination)
+        {
+            ExtraFee = extraFee;
+        }
+
+        public override void PrintShipment()
+        {
+            Console.WriteLine("Express Shipment");
+            Console.WriteLine();
+            Console.WriteLine("Tracking Code : " + TrackingCode);
+            Console.WriteLine("Description   : " + Description);
+            Console.WriteLine("Weight        : " + Weight + " KG");
+            Console.WriteLine("Delivery Fee  : " + DeliveryFee + " EGP");
+            Console.WriteLine("Extra Fee     : " + ExtraFee + " EGP");
+            Console.WriteLine("Estimated Cost: " + EstimatedCost + " EGP");
+        }
+    }
+
+    #endregion
+
+    #region InternationalShipment
+
+    public class InternationalShipment : Shipment
+    {
+        private string _destinationCountry = "Unknown";
+        private decimal _customsFee = 0;
+
+        public string DestinationCountry
+        {
+            get { return _destinationCountry; }
+            set
+            {
+                if (!string.IsNullOrWhiteSpace(value))
+                    _destinationCountry = value;
+            }
+        }
+
+        public decimal CustomsFee
+        {
+            get { return _customsFee; }
+            set
+            {
+                if (value >= 0)
+                    _customsFee = value;
+            }
+        }
+
+        // DeliveryFee + (Weight x 5) + CustomsFee
+        public override decimal EstimatedCost
+        {
+            get { return DeliveryFee + Weight * 5 + CustomsFee; }
+        }
+
+        public InternationalShipment(string trackingCode, string description, decimal weight,
+                                     decimal deliveryFee, DeliveryAddress destination,
+                                     string destinationCountry, decimal customsFee)
+            : base(trackingCode, description, weight, deliveryFee, destination)
+        {
+            DestinationCountry = destinationCountry;
+            CustomsFee = customsFee;
+        }
+
+        public override void PrintShipment()
+        {
+            Console.WriteLine("International Shipment");
+            Console.WriteLine();
+            Console.WriteLine("Tracking Code       : " + TrackingCode);
+            Console.WriteLine("Description         : " + Description);
+            Console.WriteLine("Weight              : " + Weight + " KG");
+            Console.WriteLine("Delivery Fee        : " + DeliveryFee + " EGP");
+            Console.WriteLine("Destination Country : " + DestinationCountry);
+            Console.WriteLine("Customs Fee         : " + CustomsFee + " EGP");
+            Console.WriteLine("Estimated Cost      : " + EstimatedCost + " EGP");
+        }
+    }
+
+    #endregion
+    class Program
+    {
+        static void Main()
+        {
+            DeliveryAddress address = new DeliveryAddress("Cairo", "Tahrir", 15);
+
+            StandardShipment standard = new StandardShipment("S001", "Electronics", 10, 50, address);
+            ExpressShipment express = new ExpressShipment("S002", "Urgent Docs", 2, 80, address, 30);
+            InternationalShipment international = new InternationalShipment("S003", "Spare Parts", 15, 120, address, "Saudi Arabia", 200);
+
+            standard.PrintShipment();
+            Console.WriteLine();
+            express.PrintShipment();
+            Console.WriteLine();
+            international.PrintShipment();
+
+            Console.WriteLine();
+            Console.WriteLine("Press any key to exit...");
+            Console.ReadKey();
+        }
+    }
+}
