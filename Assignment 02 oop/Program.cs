@@ -80,7 +80,7 @@ namespace Assignment_02_oop
 
     #endregion
 
-    #region Part 02 : Practical - 1. Shipment Class
+    #region Part 02 : Practical -  Shipment Class
 
     public struct DeliveryAddress
     {
@@ -175,22 +175,26 @@ namespace Assignment_02_oop
             Console.WriteLine("Estimated Cost: " + EstimatedCost + " EGP");
         }
     }
-        //public class StandardShipment : Shipment
-        //{
-        //    public StandardShipment(string code, string description, decimal weight,
-        //                            decimal fee, DeliveryAddress address)
-        //        : base(code, description, weight, fee, address)
-        //    {
-        //    }
-        //}
+    //public class StandardShipment : Shipment
+    //{
+    //    public StandardShipment(string code, string description, decimal weight,
+    //                            decimal fee, DeliveryAddress address)
+    //        : base(code, description, weight, fee, address)
+    //    {
+    //    }
+    //}
 
     #endregion
+    #region Part 02 : Practical - 2. Create Three Shipment Types
+
+    // ---------------------------------------------------------------------
+   
 
     #region StandardShipment
 
     public class StandardShipment : Shipment
     {
-        // ": base(...)" is constructor chaining: the Shipment constructor does the work.
+        
         public StandardShipment(string trackingCode, string description, decimal weight,
                                 decimal deliveryFee, DeliveryAddress destination)
             : base(trackingCode, description, weight, deliveryFee, destination)
@@ -227,7 +231,7 @@ namespace Assignment_02_oop
             }
         }
 
-        // DeliveryFee + (Weight x 5) + ExtraFee
+     
         public override decimal EstimatedCost
         {
             get { return DeliveryFee + Weight * 5 + ExtraFee; }
@@ -255,7 +259,7 @@ namespace Assignment_02_oop
 
     #endregion
 
-    #region InternationalShipment
+     #region InternationalShipment
 
     public class InternationalShipment : Shipment
     {
@@ -282,7 +286,6 @@ namespace Assignment_02_oop
             }
         }
 
-        // DeliveryFee + (Weight x 5) + CustomsFee
         public override decimal EstimatedCost
         {
             get { return DeliveryFee + Weight * 5 + CustomsFee; }
@@ -312,25 +315,178 @@ namespace Assignment_02_oop
     }
 
     #endregion
+
+    #region Part 02 : Practical - 3. DeliveryCenter Class
+
+    // ---------------------------------------------------------------------
+    // 3. DeliveryCenter Class
+    //
+    // Extend your DeliveryCenter class. The class should contain:
+    //     CenterName : string
+    //     Shipments  : Shipment[]
+    //
+    // Requirements:
+    //     - The center can store up to 20 shipments.
+    //     - The Shipment array must be private.
+    //     - Keep the indexers from Assignment 01.
+    //     - Keep the AddShipment() method from Assignment 01.
+    //
+    // Add the following methods:
+    //
+    // RemoveShipment
+    //     Searches for a shipment using its tracking code.
+    //     If found:  remove the shipment and return true.
+    //     Otherwise: return false.
+    //
+    // PrintAllShipments
+    //     void PrintAllShipments()
+    //     Print all stored shipments.
+    // ---------------------------------------------------------------------
+
+    public class DeliveryCenter
+    {
+        private const int MaxShipments = 20;
+
+        // The array is private. "Shipment?" means the slot may be null (empty).
+        private readonly Shipment?[] _shipments = new Shipment?[MaxShipments];
+
+        private string _centerName = "Unnamed Center";
+
+        public string CenterName
+        {
+            get { return _centerName; }
+            set
+            {
+                if (!string.IsNullOrWhiteSpace(value))
+                    _centerName = value;
+            }
+        }
+
+        // Indexer 1: get / set a shipment by its position.  Example: center[0]
+        public Shipment? this[int index]
+        {
+            get
+            {
+                if (index < 0 || index >= MaxShipments)
+                    return null;         // invalid index
+
+                return _shipments[index];
+            }
+            set
+            {
+                if (index >= 0 && index < MaxShipments)
+                    _shipments[index] = value;
+            }
+        }
+
+        // Indexer 2: find a shipment by its tracking code.  Example: center["SH001"]
+        public Shipment? this[string trackingCode]
+        {
+            get
+            {
+                int position = FindPosition(trackingCode);
+
+                if (position == -1)
+                    return null;         // not found
+
+                return _shipments[position];
+            }
+        }
+
+        // Returns the position of the shipment with this tracking code, or -1 if not found.
+        private int FindPosition(string trackingCode)
+        {
+            for (int i = 0; i < MaxShipments; i++)
+            {
+                Shipment? shipment = _shipments[i];
+
+                if (shipment != null && shipment.TrackingCode.ToLower() == trackingCode.ToLower())
+                    return i;
+            }
+
+            return -1;
+        }
+
+        // Adds the shipment in the first empty position.
+        // Returns true if added, false if the center is full.
+        public bool AddShipment(Shipment shipment)
+        {
+            for (int i = 0; i < MaxShipments; i++)
+            {
+                if (_shipments[i] == null)
+                {
+                    _shipments[i] = shipment;
+                    return true;
+                }
+            }
+
+            return false;
+        }
+
+        // Searches by tracking code. If found: removes it and returns true.
+        public bool RemoveShipment(string trackingCode)
+        {
+            int position = FindPosition(trackingCode);
+
+            if (position == -1)
+                return false;
+
+            _shipments[position] = null;   // the position becomes empty
+            return true;
+        }
+
+        public void PrintAllShipments()
+        {
+            bool isFirst = true;
+
+            for (int i = 0; i < MaxShipments; i++)
+            {
+                Shipment? shipment = _shipments[i];
+
+                if (shipment != null)
+                {
+                    // A line between the shipments
+                    if (!isFirst)
+                    {
+                        Console.WriteLine();
+                        Console.WriteLine("-------------------------------");
+                        Console.WriteLine();
+                    }
+
+                    shipment.PrintShipment();
+                    isFirst = false;
+                }
+            }
+
+            if (isFirst)
+                Console.WriteLine("No shipments stored.");
+        }
+    }
+
+    #endregion
+
     class Program
     {
         static void Main()
         {
+            DeliveryCenter center = new DeliveryCenter();
+            center.CenterName = "Cairo center";
+
             DeliveryAddress address = new DeliveryAddress("Cairo", "Tahrir", 15);
-
             StandardShipment standard = new StandardShipment("S001", "Electronics", 10, 50, address);
-            ExpressShipment express = new ExpressShipment("S002", "Urgent Docs", 2, 80, address, 30);
-            InternationalShipment international = new InternationalShipment("S003", "Spare Parts", 15, 120, address, "Saudi Arabia", 200);
+            ExpressShipment express = new ExpressShipment("S002", "Phone", 2, 80, address, 30);
+            InternationalShipment international = new InternationalShipment("S003", "cairo", 15, 120, address, "Egypt", 200);
 
-            standard.PrintShipment();
-            Console.WriteLine();
-            express.PrintShipment();
-            Console.WriteLine();
-            international.PrintShipment();
+            center.AddShipment(standard);
+            center.AddShipment(express);
+            center.AddShipment(international);
+
+            center.PrintAllShipments();
 
             Console.WriteLine();
             Console.WriteLine("Press any key to exit...");
             Console.ReadKey();
         }
     }
+    #endregion
 }
