@@ -188,13 +188,13 @@ namespace Assignment_02_oop
     #region Part 02 : Practical - 2. Create Three Shipment Types
 
     // ---------------------------------------------------------------------
-   
+
 
     #region StandardShipment
 
     public class StandardShipment : Shipment
     {
-        
+
         public StandardShipment(string trackingCode, string description, decimal weight,
                                 decimal deliveryFee, DeliveryAddress destination)
             : base(trackingCode, description, weight, deliveryFee, destination)
@@ -231,7 +231,7 @@ namespace Assignment_02_oop
             }
         }
 
-     
+
         public override decimal EstimatedCost
         {
             get { return DeliveryFee + Weight * 5 + ExtraFee; }
@@ -259,7 +259,7 @@ namespace Assignment_02_oop
 
     #endregion
 
-     #region InternationalShipment
+    #region InternationalShipment
 
     public class InternationalShipment : Shipment
     {
@@ -316,32 +316,10 @@ namespace Assignment_02_oop
 
     #endregion
 
-    #region Part 02 : Practical - 3. DeliveryCenter Class
+    #region Part 02 : Practical3 DeliveryCenter Class
 
     // ---------------------------------------------------------------------
-    // 3. DeliveryCenter Class
-    //
-    // Extend your DeliveryCenter class. The class should contain:
-    //     CenterName : string
-    //     Shipments  : Shipment[]
-    //
-    // Requirements:
-    //     - The center can store up to 20 shipments.
-    //     - The Shipment array must be private.
-    //     - Keep the indexers from Assignment 01.
-    //     - Keep the AddShipment() method from Assignment 01.
-    //
-    // Add the following methods:
-    //
-    // RemoveShipment
-    //     Searches for a shipment using its tracking code.
-    //     If found:  remove the shipment and return true.
-    //     Otherwise: return false.
-    //
-    // PrintAllShipments
-    //     void PrintAllShipments()
-    //     Print all stored shipments.
-    // ---------------------------------------------------------------------
+
 
     public class DeliveryCenter
     {
@@ -465,27 +443,201 @@ namespace Assignment_02_oop
 
     #endregion
 
+
+    // Part 02 : Practical5 In Main
+
+    // ---------------------------------------------------------------------
+    //   Create a DeliveryCenter.
+    //   Read the center name from the user.
+    //   Create one StandardShipment.
+    //   Create one ExpressShipment.
+    //   Create one InternationalShipment.
+    //   Read all shipment data from the user.
+    //   Add the shipments to the delivery center.
+    //   Print all shipments.
+    //   Search for a shipment using the existing tracking code indexer.
+    //   Remove one shipment using its tracking code.
+    //   Print the remaining shipments.
+    // ---------------------------------------------------------------------
+
     class Program
     {
         static void Main()
         {
+            // Create a DeliveryCenter and read its name from the user
             DeliveryCenter center = new DeliveryCenter();
-            center.CenterName = "Cairo center";
+            Console.WriteLine("Enter Delivery Center Name:");
+            center.CenterName = ReadText("");
 
-            DeliveryAddress address = new DeliveryAddress("Cairo", "Tahrir", 15);
-            StandardShipment standard = new StandardShipment("S001", "Electronics", 10, 50, address);
-            ExpressShipment express = new ExpressShipment("S002", "Phone", 2, 80, address, 30);
-            InternationalShipment international = new InternationalShipment("S003", "cairo", 15, 120, address, "Egypt", 200);
+            // Create one shipment of each type (the data is read from the user)
+            Console.WriteLine();
+            StandardShipment standard = ReadStandardShipment();
 
-            center.AddShipment(standard);
-            center.AddShipment(express);
-            center.AddShipment(international);
+            Console.WriteLine();
+            ExpressShipment express = ReadExpressShipment();
 
+            Console.WriteLine();
+            InternationalShipment international = ReadInternationalShipment();
+
+            // Add the shipments to the delivery center
+            Console.WriteLine();
+            AddToCenter(center, standard);
+            AddToCenter(center, express);
+            AddToCenter(center, international);
+
+            // Print all shipments
+            Console.WriteLine();
+            PrintHeader("Delivery Center : " + center.CenterName);
+            center.PrintAllShipments();
+
+            // Search for a shipment using the tracking code indexer
+            Console.WriteLine();
+            Console.WriteLine("Enter Tracking Code to Search:");
+            string searchCode = ReadText("");
+
+            Shipment? found = center[searchCode];
+            Console.WriteLine();
+            if (found != null)
+                Console.WriteLine("Shipment found: " + found.TrackingCode + " - " + found.Description);
+            else
+                Console.WriteLine("Shipment not found.");
+
+            // Remove one shipment using its tracking code
+            Console.WriteLine();
+            Console.WriteLine("Enter Tracking Code to Remove:");
+            string removeCode = ReadText("");
+
+            Console.WriteLine();
+            if (center.RemoveShipment(removeCode))
+                Console.WriteLine("Shipment Removed Successfully.");
+            else
+                Console.WriteLine("Shipment not found.");
+
+            // Print the remaining shipments
+            Console.WriteLine();
+            PrintHeader("Remaining Shipments");
             center.PrintAllShipments();
 
             Console.WriteLine();
             Console.WriteLine("Press any key to exit...");
             Console.ReadKey();
+        }
+
+        // ---------- Reading the shipments from the user ----------
+
+        static StandardShipment ReadStandardShipment()
+        {
+            Console.WriteLine("Enter Standard Shipment Data");
+            string code = ReadText("Tracking Code: ");
+            string description = ReadText("Description: ");
+            decimal weight = ReadDecimal("Weight: ", allowZero: false);
+            decimal deliveryFee = ReadDecimal("Delivery Fee: ", allowZero: false);
+            DeliveryAddress address = ReadAddress();
+
+            return new StandardShipment(code, description, weight, deliveryFee, address);
+        }
+
+        static ExpressShipment ReadExpressShipment()
+        {
+            Console.WriteLine("Enter Express Shipment Data");
+            string code = ReadText("Tracking Code: ");
+            string description = ReadText("Description: ");
+            decimal weight = ReadDecimal("Weight: ", allowZero: false);
+            decimal deliveryFee = ReadDecimal("Delivery Fee: ", allowZero: false);
+            DeliveryAddress address = ReadAddress();
+            decimal extraFee = ReadDecimal("Extra Fee: ", allowZero: true);
+
+            return new ExpressShipment(code, description, weight, deliveryFee, address, extraFee);
+        }
+
+        static InternationalShipment ReadInternationalShipment()
+        {
+            Console.WriteLine("Enter International Shipment Data");
+            string code = ReadText("Tracking Code: ");
+            string description = ReadText("Description: ");
+            decimal weight = ReadDecimal("Weight: ", allowZero: false);
+            decimal deliveryFee = ReadDecimal("Delivery Fee: ", allowZero: false);
+            DeliveryAddress address = ReadAddress();
+            string country = ReadText("Destination Country: ");
+            decimal customsFee = ReadDecimal("Customs Fee: ", allowZero: true);
+
+            return new InternationalShipment(code, description, weight, deliveryFee, address, country, customsFee);
+        }
+
+        static DeliveryAddress ReadAddress()
+        {
+            string city = ReadText("City: ");
+            string street = ReadText("Street: ");
+            int buildingNumber = ReadInt("Building Number: ");
+
+            return new DeliveryAddress(city, street, buildingNumber);
+        }
+
+        static void AddToCenter(DeliveryCenter center, Shipment shipment)
+        {
+            if (center.AddShipment(shipment))
+                Console.WriteLine("Shipment Added Successfully.");
+            else
+                Console.WriteLine("Delivery center is full.");
+        }
+
+        static void PrintHeader(string title)
+        {
+            Console.WriteLine("========================================");
+            Console.WriteLine(title);
+            Console.WriteLine("========================================");
+        }
+
+        // ---------- Reading values (asks again until the value is valid) ----------
+
+        // Reads text that is not empty.
+        static string ReadText(string message)
+        {
+            while (true)
+            {
+                Console.Write(message);
+                string? text = Console.ReadLine();   // "string?" because ReadLine can return null
+
+                if (text != null && text.Trim() != "")
+                    return text.Trim();
+
+                Console.WriteLine("This value cannot be empty.");
+            }
+        }
+
+        // Reads a number. If allowZero is false, the number must be greater than 0.
+        static decimal ReadDecimal(string message, bool allowZero)
+        {
+            while (true)
+            {
+                Console.Write(message);
+                string? text = Console.ReadLine();
+
+                decimal number;
+                if (decimal.TryParse(text, out number))
+                {
+                    if (number > 0 || (allowZero && number == 0))
+                        return number;
+                }
+
+                Console.WriteLine("Invalid value, please try again.");
+            }
+        }
+
+        // Reads a whole number greater than 0.
+        static int ReadInt(string message)
+        {
+            while (true)
+            {
+                Console.Write(message);
+                string? text = Console.ReadLine();
+
+                int number;
+                if (int.TryParse(text, out number) && number > 0)
+                    return number;
+
+                Console.WriteLine("Invalid value, please try again.");
+            }
         }
     }
     #endregion
